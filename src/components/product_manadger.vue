@@ -1,5 +1,5 @@
 <script setup>
-import { getProducts } from '../api/products';
+import { create_product, getProducts } from '../api/products';
 
 </script>
 
@@ -8,16 +8,25 @@ export default{
     name: "product_manadger",
     data(){
         return{
-            products: []
-        }
+            products: [],
+            newProducts: {
+                name: "",
+                price: 0,
+                inStock: false,
+            },
+        };
     },
     methods: {
         async loadProducts() {
             this.products = await getProducts();
         },
 
-        async addProduct(){
-            
+        async addProduct(products){
+            await create_product(products);
+            await this.loadProducts();
+        },
+        async submitCreateProduct(){
+            await this.addProduct(this.newProducts);
         }
     },
     mounted() {
@@ -27,10 +36,10 @@ export default{
 </script>
 
 <template>
-    <main class=" bg-indigo-950 text-amber-50">
+    <main class="flex bg-indigo-950 text-amber-50 items-center flex-col">
         <h1 class="">termékek manadzsment</h1>
 
-        <table class="flex w-full">
+        <table class="flex flex-col w-full">
             <thead class="p-2 w-full">
                 <tr class="flex justify-around gap-8">
                     <th class="">id</th>
@@ -49,15 +58,15 @@ export default{
             </tbody>
         </table>
 
-        <form class="mt-30 flex flex-col border-2 border-stone-200 rounded-xl p-5 w-max">
+        <form @submit.prevent="submitCreateProduct" class="mt-30 flex flex-col border-2 border-stone-200 rounded-xl p-5 w-max">
             <label for="name">név</label>
-            <input type="text" name="name" id="" class="border-2 border-stone-200 rounded-xl p-5">
+            <input type="text" name="name" id="" v-model="newProducts.name" class="border-2 border-stone-200 rounded-xl p-5">
 
             <label for="price">Ár</label>
-            <input type="number" name="price" id="" class="border-2 border-stone-200 rounded-xl p-5">
+            <input type="number" name="price" id="" v-model.number="newProducts.price" class="border-2 border-stone-200 rounded-xl p-5">
 
             <label for="inStock">Raktáron van-e?</label>
-            <input type="checkbox" name="inStock" id="">
+            <input type="checkbox" name="inStock" v-model="newProducts.inStock" id="">
 
             <button type="submit">Létrehozás</button>
         </form>
